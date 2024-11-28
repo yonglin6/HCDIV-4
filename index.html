@@ -23,7 +23,7 @@
     }
     .header h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 24px;
     }
     .header p {
       margin: 5px 0 0;
@@ -49,6 +49,8 @@ let svg = d3.select("svg")
     .attr("viewBox", "0 0 " + width + " " + height);
 
 let tooltip = d3.select(".tooltip");
+
+let selectedElement = null; // To track the currently selected element
 
 // Load external data and boot
 Promise.all([d3.json("sgmap.json"), d3.csv("population2023.csv")]).then(data => {
@@ -91,6 +93,22 @@ Promise.all([d3.json("sgmap.json"), d3.csv("population2023.csv")]).then(data => 
       })
       .on("mouseout", function() {
         tooltip.transition().duration(200).style("opacity", 0);
+      })
+      .on("click", function(event, d) {
+        // Reset the previous selection
+        if (selectedElement) {
+          selectedElement.attr("stroke", "black").attr("stroke-width", 1);
+        }
+
+        // Highlight the current selection
+        selectedElement = d3.select(this);
+        selectedElement.attr("stroke", "red").attr("stroke-width", 3);
+
+        // Display data in tooltip
+        tooltip.transition().duration(200).style("opacity", 1);
+        tooltip.html(`Subzone: ${d.properties.Name}<br>Population: ${d.popdata}`)
+               .style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY - 20) + "px");
       });
   
   // Add color legend
