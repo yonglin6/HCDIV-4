@@ -22,9 +22,7 @@
       fill: white; /* 图例文字颜色为白色 */
     }
     .header {
-      display: flex;
-      flex-direction: column;
-      align-items: center; /* 居中 */
+      text-align: center;
       margin-bottom: 20px;
     }
     .header h1 {
@@ -33,23 +31,30 @@
       color: white; /* 标题颜色为白色 */
     }
     .header p {
-      margin: 5px 0 10px;
+      margin: 5px 0 0;
       font-size: 16px;
       color: #aaa; /* 说明文字颜色为浅灰色 */
     }
     .dropdown-container {
-      margin-top: 10px; /* 距离顶部文字10px */
+      position: absolute;
+      top: 20px;
+      right: 20px; /* 设置右侧间距 */
       background-color: white;
       color: black;
-      padding: 5px;
+      padding: 10px;
       border-radius: 5px;
+      border: 1px solid #ddd;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      width: 200px;
+      text-align: center;
+    }
+    .dropdown-container label {
+      font-size: 14px;
+      margin-bottom: 5px;
+      display: block;
     }
     .dropdown-container select {
-      width: 180px;
+      width: 100%;
       padding: 5px;
       border: 1px solid #ddd;
       border-radius: 4px;
@@ -61,15 +66,15 @@
 <div class="header">
   <h1>Singapore Subzone Population Map (2023)</h1>
   <p>Visualizing population density across Singapore's subzones using a gradient color scale.</p>
-  <div class="dropdown-container">
-    <label for="region-select">Select a Region:</label>
-    <select id="region-select">
-      <option value="">--Choose a Region--</option>
-    </select>
-  </div>
 </div>
 <svg></svg>
 <div class="tooltip" style="opacity: 0;"></div>
+<div class="dropdown-container">
+  <label for="region-select">Select a Region:</label>
+  <select id="region-select">
+    <option value="">--Choose a Region--</option>
+  </select>
+</div>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <script>
