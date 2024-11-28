@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
     .tooltip {
       position: absolute;
       background-color: white;
@@ -14,9 +17,26 @@
       font-size: 12px;
       text-anchor: middle;
     }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .header p {
+      margin: 5px 0 0;
+      font-size: 16px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
+<div class="header">
+  <h1>Singapore Subzone Population Map (2023)</h1>
+  <p>Visualizing population density across Singapore's subzones using a gradient color scale.</p>
+</div>
 <svg></svg>
 <div class="tooltip" style="opacity: 0;"></div>
 <script src="https://d3js.org/d3.v7.min.js"></script>
