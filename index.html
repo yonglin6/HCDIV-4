@@ -10,6 +10,10 @@
       padding: 5px;
       pointer-events: none;
     }
+    .legend {
+      font-size: 12px;
+      text-anchor: middle;
+    }
   </style>
 </head>
 <body>
@@ -37,8 +41,6 @@ Promise.all([d3.json("sgmap.json"), d3.csv("population2023.csv")]).then(data => 
     let subzone = popData.find(e => e.Subzone.toUpperCase() == d.properties.Name.toUpperCase()); 
     d.popdata = (subzone != undefined) ? parseInt(subzone.Population) : 0; 
   });  
-  
-  console.log(mapData);  
   
   // Create a color scale
   let colorScale = d3.scaleSequential(d3.interpolateBlues)
@@ -70,6 +72,54 @@ Promise.all([d3.json("sgmap.json"), d3.csv("population2023.csv")]).then(data => 
       .on("mouseout", function() {
         tooltip.transition().duration(200).style("opacity", 0);
       });
+  
+  // Add color legend
+  let legendWidth = 300;
+  let legendHeight = 20;
+  let legendX = width - legendWidth - 30; 
+  let legendY = height - 50; 
+
+  let legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("transform", `translate(${legendX}, ${legendY})`);
+
+  // Create a gradient for the legend
+  let defs = svg.append("defs");
+  let linearGradient = defs.append("linearGradient")
+      .attr("id", "legend-gradient");
+
+  linearGradient.selectAll("stop")
+      .data(d3.ticks(0, d3.max(mapData, d => d.popdata), 10))
+      .enter()
+      .append("stop")
+      .attr("offset", (d, i, nodes) => `${(i / (nodes.length - 1)) * 100}%`)
+      .attr("stop-color", d => colorScale(d));
+
+  legend.append("rect")
+      .attr("width", legendWidth)
+      .attr("height", legendHeight)
+      .style("fill", "url(#legend-gradient)");
+
+  // Add axis for the legend
+  let legendScale = d3.scaleLinear()
+      .domain([0, d3.max(mapData, d => d.popdata)])
+      .range([0, legendWidth]);
+
+  let legendAxis = d3.axisBottom(legendScale)
+      .ticks(5)
+      .tickSize(10)
+      .tickPadding(5);
+
+  legend.append("g")
+      .attr("transform", `translate(0, ${legendHeight})`)
+      .call(legendAxis);
+
+  // Add label
+  svg.append("text")
+      .attr("x", legendX + legendWidth / 2)
+      .attr("y", legendY - 10)
+      .attr("text-anchor", "middle")
+      .text("Population Size");
 });
 
 </script>
