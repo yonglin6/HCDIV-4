@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singapore Population Choropleth Map</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .legend {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Singapore Population Distribution</h1>
+    <svg id="map" width="800" height="600"></svg>
+
+    <script>
+        // Map dimensions
+        const width = 800;
+        const height = 600;
+
+        // Create SVG
+        const svg = d3.select("#map");
+
+        // Define color scale
+        const colorScale = d3.scaleSequential(d3.interpolateBlues)
+            .domain([0, 100000]); // Adjust domain based on your population data range
+
+        // Load GeoJSON data and population data
+        Promise.all([
+            d3.json('https://chi-loong.github.io/HCDIV/assignments/sgmap.json'), // GeoJSON data
+            d3.csv('population_data.csv') // Population data (replace with your CSV file)
+        ]).then(([geoData, populationData]) => {
+            // Create a map for quick population lookup
+            const populationMap = new Map();
+            populationData.forEach(d => {
+                populationMap.set(d.subzone, +d.population); // Adjust keys/fields based on your data structure
+            });
+
+            // Draw the map
+            const projection = d3.geoMercator()
+                .fitSize([width, height], geoData);
+            const path = d3.geoPath(projection);
+
+            svg.selectAll("path")
+                .data(geoData.features)
+                .join("path")
+                .attr("d", path)
+                .attr("fill", d => {
+                    const population = populationMap.get(d.properties.subzone); // Adjust key based on your data
+                    return population ? colorScale(population) : "#ccc";
+                })
+                .attr("stroke", "#000")
+                .attr("stroke-width", 0.5)
+                .on("mouseover", (event, d) => {
+                    const subzone = d.properties.subzone; // Adjust key based on your data
+                    const population = populationMap.get(subzone) || "No data";
+                    alert(`Subzone: ${subzone}\nPopulation: ${population}`);
+                });
+
+            // Add a legend
+            const legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${width - 150}, 20)`);
+
+            const legendScale = d3.scaleLinear()
+                .domain([0, 100000]) // Adjust domain based on your data range
+                .range([0, 100]);
+
+            legend.selectAll("rect")
+                .data(d3.range(0, 101, 10))
+                .join("rect")
+                .attr("x", 0)
+                .attr("y", d => 100 - legendScale(d))
+                .attr("width", 20)
+                .attr("height", 10)
+                .attr("fill", d => colorScale(d));
+
+            legend.append("text")
+                .attr("x", 30)
+                .attr("y", 0)
+                .text("Population")
+                .style("font-size", "12px");
+
+            legend.append("text")
+                .attr("x", 30)
+                .attr("y", 100)
+                .text("0")
+                .style("font-size", "12px");
+
+            legend.append("text")
+                .attr("x", 30)
+                .attr("y", 0)
+                .text("100,000+")
+                .style("font-size", "12px");
+        });
+    </script>
+</body>
+</html>
