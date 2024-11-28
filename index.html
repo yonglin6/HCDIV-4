@@ -50,8 +50,6 @@ let svg = d3.select("svg")
 
 let tooltip = d3.select(".tooltip");
 
-let selectedElement = null; // To track the currently selected element
-
 // Load external data and boot
 Promise.all([d3.json("sgmap.json"), d3.csv("population2023.csv")]).then(data => {
 
@@ -86,29 +84,25 @@ Promise.all([d3.json("sgmap.json"), d3.csv("population2023.csv")]).then(data => 
       .attr("stroke", "black")  
       .attr("fill", d => colorScale(d.popdata))  
       .on("mouseover", function(event, d) {
+        // Highlight the hovered path
+        d3.select(this)
+          .attr("stroke", "red")
+          .attr("stroke-width", 3);
+
+        // Show tooltip
         tooltip.transition().duration(200).style("opacity", 1);
         tooltip.html(`Subzone: ${d.properties.Name}<br>Population: ${d.popdata}`)
                .style("left", (event.pageX + 10) + "px")
                .style("top", (event.pageY - 20) + "px");
       })
       .on("mouseout", function() {
+        // Reset highlight
+        d3.select(this)
+          .attr("stroke", "black")
+          .attr("stroke-width", 1);
+
+        // Hide tooltip
         tooltip.transition().duration(200).style("opacity", 0);
-      })
-      .on("click", function(event, d) {
-        // Reset the previous selection
-        if (selectedElement) {
-          selectedElement.attr("stroke", "black").attr("stroke-width", 1);
-        }
-
-        // Highlight the current selection
-        selectedElement = d3.select(this);
-        selectedElement.attr("stroke", "red").attr("stroke-width", 3);
-
-        // Display data in tooltip
-        tooltip.transition().duration(200).style("opacity", 1);
-        tooltip.html(`Subzone: ${d.properties.Name}<br>Population: ${d.popdata}`)
-               .style("left", (event.pageX + 10) + "px")
-               .style("top", (event.pageY - 20) + "px");
       });
   
   // Add color legend
